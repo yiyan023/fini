@@ -155,7 +155,7 @@ export default function App() {
       </View>
       <View style={styles.bottomContainerButtons}>
           <TouchableOpacity onPress={() => swiperRef.current.swipeLeft()}>
-            <Image
+            <Image 
               source={require('./images/leftarrow.png')}
               style={{ width: 50, height: 50 }}
             />
