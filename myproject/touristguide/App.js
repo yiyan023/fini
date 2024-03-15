@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions, Animated } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import axios from 'axios';
 import { yelpAPIKey } from './YelpAPI';
-import { FontAwesome } from '@expo/vector-icons'
-import { useFonts } from 'react-native-google-fonts';
 
-const { width } = Dimensions.get('window');
-
-const headerSize = 25;
-const textSize = 20;
+const textSize =  20;
+const headerSize = 24;
 
 const fetchData = async () => {
   try {
@@ -45,6 +41,9 @@ const Card = ({ card, index }) => {
     return null;
   }
 
+  const [cardScale, setCardScale] = React.useState(new Animated.Value(1));
+  const [cardOpacity, setCardOpacity] = React.useState(new Animated.Value(1));
+
   const renderStars = (rating) => {
     const stars = Array.from({ length: 5 }, (_, i) => i + 1);
   
@@ -53,37 +52,19 @@ const Card = ({ card, index }) => {
   
       if (star <= Math.floor(rating)) {
         return (
-          <Text
-            key={star}
-            style={[
-              styles.text,
-              styles.filledStar,
-            ]}
-          >
+          <Text key={star} style={[ styles.text, styles.filledStar, ]} >
             ★
           </Text>
         );
       } else if (star === Math.ceil(rating) && isHalfStar) {
         return (
-          <Text
-            key={star}
-            style={[
-              styles.text,
-              styles.halfStar,
-            ]}
-          >
+          <Text key={star} style={[ styles.text, styles.halfStar ]}>
             ☆
           </Text>
         );
       } else {
         return (
-          <Text
-            key={star}
-            style={[
-              styles.text,
-              styles.emptyStar,
-            ]}
-          >
+          <Text key={star} style={[ styles.text, styles.emptyStar ]} >
             ★
           </Text>
         );
@@ -119,14 +100,6 @@ export default function App() {
   }, []);
 
   const handleNextButtonPress = () => {
-    setIndex((index + 1) % data.length);
-  };
-
-  const prev = () => {
-    setIndex((index - 1) % data.length);
-  };
-
-  const handlePreviousButtonPress = () => {
     setIndex((index - 1 + data.length) % data.length);
   };
 
@@ -141,14 +114,12 @@ export default function App() {
           cards={data}
           cardIndex={index}
           renderCard={(card) => <Card card={card} index={index}/>}
-          goBackToPreviousCardOnSwipeLeft = {true}
-          onSwipedRight={handlePreviousButtonPress}
-          stackSize={4}
-          stackScale={10}
-          stackSeparation={0}
+          goBackToPreviousCardOnSwipeLeft={true}
+          showSecondCard={false}
+          onSwipedRight={handleNextButtonPress}
           disableTopSwipe
           disableBottomSwipe
-          animateCardOpacity
+          animateCardLayout
           infinite
           backgroundColor={'transparent'}
         />
@@ -178,8 +149,8 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     alignItems: 'center',
-    top: '6%',
-    flex: 0.25
+    top: '8%',
+    flex: 0.20
   },
   swiperContainer: {
     flex: 0.65,
@@ -192,9 +163,10 @@ const styles = StyleSheet.create({
     width: "50%",
     flex: 1,
     resizeMode: 'contain',
+    marginTop: '10%'
   },
   titleImage: {
-    flex: 1,
+    flex: 0.8,
     justifyContent: 'center',
     width: 100
   },
@@ -205,8 +177,8 @@ const styles = StyleSheet.create({
     shadowColor: colors.black,
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 0 },
+    alignItems: 'center', 
     justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: colors.white,
   },
   text: {
@@ -215,22 +187,16 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: headerSize,
-    marginBottom: 10,
     fontFamily: 'Avenir-Heavy',
     color: colors.purple,
     marginLeft: "10%",
     marginRight: "10%",
     textAlign: 'center'
   },
-  price: {
-    color: colors.blue,
-    fontSize: 32,
-    fontWeight: '500',
-  },
   textContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 40,
+    marginBottom: '10%',
   },
   bottomContainerButtons: {
     flexDirection: 'row',
