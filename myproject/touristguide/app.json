@@ -1,7 +1,25 @@
 {
-  "name": "touristguide",
-  "displayName": "touristguide",
-  "plugins": [
-    "expo-font"
-  ]
+  "expo": {
+    "name": "appname",
+    "displayName": "app",
+    "plugins": [
+      "expo-font",
+      "expo-material",
+      "@expo/vector-icons"
+    ],
+    "fonts": [
+      {
+        "family": "MyFont",
+        "fonts": [
+          {
+            "uri": "assets/fonts/MyFont-Regular.ttf"
+          },
+          {
+            "uri": "assets/fonts/MyFont-Bold.ttf",
+            "weight": "bold"
+          }
+        ]
+      }
+    ]
+  }
 }

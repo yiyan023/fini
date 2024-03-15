@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image, Button } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import axios from 'axios';
 import { yelpAPIKey } from './YelpAPI';
+import { FontAwesome } from '@expo/vector-icons'
+import { useFonts } from 'react-native-google-fonts';
+
+const { width } = Dimensions.get('window');
+
+const headerSize = 25;
+const textSize = 20;
 
 const fetchData = async () => {
   try {
     const response = await axios.get(
-      'https://api.yelp.com/v3/businesses/search?location=toronto',
+      'https://api.yelp.com/v3/businesses/search?location=canada',
       config
     );
     const data = response.data.businesses;
@@ -19,10 +26,12 @@ const fetchData = async () => {
 
 const colors = {
   red: '#ec2379',
-  blue: '#0070ff',
-  gray: '#777777',
+  blue: '#cad3fc',
+  gray: '#b3b2af',
   black: '#000000',
   white: '#ffffff',
+  purple: '#340163',
+  yellow: '#fac825'
 };
 
 const config = {
@@ -36,16 +45,62 @@ const Card = ({ card, index }) => {
     return null;
   }
 
+  const renderStars = (rating) => {
+    const stars = Array.from({ length: 5 }, (_, i) => i + 1);
+  
+    return stars.map(star => {
+      const isHalfStar = rating - Math.floor(rating) >= 0.5 && rating - Math.floor(rating) < 1;
+  
+      if (star <= Math.floor(rating)) {
+        return (
+          <Text
+            key={star}
+            style={[
+              styles.text,
+              styles.filledStar,
+            ]}
+          >
+            ★
+          </Text>
+        );
+      } else if (star === Math.ceil(rating) && isHalfStar) {
+        return (
+          <Text
+            key={star}
+            style={[
+              styles.text,
+              styles.halfStar,
+            ]}
+          >
+            ☆
+          </Text>
+        );
+      } else {
+        return (
+          <Text
+            key={star}
+            style={[
+              styles.text,
+              styles.emptyStar,
+            ]}
+          >
+            ★
+          </Text>
+        );
+      }
+    });
+  };
+
   return (
     <View style={styles.card}>
       <Image source={{ uri: card.image_url }} style={styles.cardImage} />
       <View style={styles.textContainer}>
-        <Text style={[styles.text, styles.heading]}>
+        <Text style={[styles.heading]}>
           {card.name}
         </Text>
-        <Text style={[styles.text, styles.rating]}>
-          {card.rating} Stars
-        </Text>
+        <View style={styles.starsContainer}>
+          {renderStars(card.rating)}
+        </View>
       </View>
     </View>
   );
@@ -55,12 +110,20 @@ export default function App() {
   const [index, setIndex] = React.useState(0);
   const [data, setData] = useState([]);
 
-  useEffect(() => {
-    fetchData().then((data) => setData(data));
+  const swiperRef = React.useRef();
+
+  React.useEffect(() => {
+    fetchData().then((businesses) => {
+      setData(businesses);
+    });
   }, []);
 
   const handleNextButtonPress = () => {
     setIndex((index + 1) % data.length);
+  };
+
+  const prev = () => {
+    setIndex((index - 1) % data.length);
   };
 
   const handlePreviousButtonPress = () => {
@@ -69,12 +132,16 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.titleContainer}>
+        <Image source={require('./images/travel-guide.png')} style={styles.titleImage} />
+      </View>
       <View style={styles.swiperContainer}>
         <Swiper
+          ref={swiperRef}
           cards={data}
           cardIndex={index}
           renderCard={(card) => <Card card={card} index={index}/>}
-          onSwipedLeft={handleNextButtonPress}
+          goBackToPreviousCardOnSwipeLeft = {true}
           onSwipedRight={handlePreviousButtonPress}
           stackSize={4}
           stackScale={10}
@@ -87,11 +154,19 @@ export default function App() {
         />
       </View>
       <View style={styles.bottomContainerButtons}>
-        <View>
-          <Button title="next" onPress={handleNextButtonPress} />
-          <Button title="previous" onPress={handlePreviousButtonPress} />
+          <TouchableOpacity onPress={() => swiperRef.current.swipeLeft()}>
+            <Image
+              source={require('./images/leftarrow.png')}
+              style={{ width: 50, height: 50 }}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => swiperRef.current.swipeRight()}>
+          <Image
+              source={require('./images/rightarrow.png')}
+              style={{ width: 50, height: 50 }}
+            />
+          </TouchableOpacity>  
         </View>
-      </View>
     </View>
   );
 }
@@ -99,7 +174,12 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.blue,
+  },
+  titleContainer: {
+    alignItems: 'center',
+    top: '6%',
+    flex: 0.25
   },
   swiperContainer: {
     flex: 0.65,
@@ -109,9 +189,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
   },
   cardImage: {
-    width: 160,
+    width: "50%",
     flex: 1,
     resizeMode: 'contain',
+  },
+  titleImage: {
+    flex: 1,
+    justifyContent: 'center',
+    width: 100
   },
   card: {
     flex: 0.55,
@@ -126,14 +211,16 @@ const styles = StyleSheet.create({
   },
   text: {
     textAlign: 'center',
-    fontSize: 20,
-    fontFamily: 'Courier', // Add the fontFamily here
-    backgroundColor: colors.white,
+    fontSize: textSize,
   },
   heading: {
-    fontSize: 20,
+    fontSize: headerSize,
     marginBottom: 10,
-    color: colors.gray,
+    fontFamily: 'Avenir-Heavy',
+    color: colors.purple,
+    marginLeft: "10%",
+    marginRight: "10%",
+    textAlign: 'center'
   },
   price: {
     color: colors.blue,
@@ -144,5 +231,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 40,
+  },
+  bottomContainerButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly'
+  },
+  filledStar: {
+    color: colors.yellow
+  },
+  emptyStar: {
+    color: colors.gray,
+  },
+  halfStar: {
+    color: colors.yellow
+  },
+  starsContainer: {
+    flexDirection: 'row',
   },
 });
