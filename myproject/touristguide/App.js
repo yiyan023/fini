@@ -41,9 +41,6 @@ const Card = ({ card, index }) => {
     return null;
   }
 
-  const [cardScale, setCardScale] = React.useState(new Animated.Value(1));
-  const [cardOpacity, setCardOpacity] = React.useState(new Animated.Value(1));
-
   const renderStars = (rating) => {
     const stars = Array.from({ length: 5 }, (_, i) => i + 1);
   
