@@ -3,44 +3,22 @@ import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions, Animated }
 import Swiper from 'react-native-deck-swiper';
 import axios from 'axios';
 import { yelpAPIKey } from './YelpAPI';
-import GetLocation from 'react-native-get-location';
 
 const textSize =  20;
 const headerSize = 24;
 
-const getLocation = async () => {
-  try {
-    const location = await GetLocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 15000,
-    });
-    return location;
-  } catch (error) {
-    console.error('Error getting location:', error);
-    return null;
-  }
-};
-
 const fetchData = async () => {
-  const location = await getLocation();
-  if (location) {
-    try {
-      const response = await axios.get(
-        `https://api.yelp.com/v3/businesses/search?location=${location.latitude},${location.longitude}`,
-        config 
-      );
-      const data = response.data.businesses;
-      return data;
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      return null;
-    }
-  } else {
-    console.error('Error getting location');
-    return null;
+  try {
+    const response = await axios.get(
+      'https://api.yelp.com/v3/businesses/search?location=canada',
+      config
+    );
+    const data = response.data.businesses;
+    return data;
+  } catch (error) {
+    console.error(error);
   }
 };
-
 
 const colors = {
   red: '#ec2379',
